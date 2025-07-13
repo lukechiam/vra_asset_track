@@ -4,6 +4,7 @@ import 'package:vra_asset_track/common/gear.dart';
 import 'package:vra_asset_track/repository/gear.dart';
 
 import 'package:vra_asset_track/widget/gear.dart';
+import 'package:vra_asset_track/widget/vra-scaffold.dart';
 
 class GearSelection extends StatefulWidget {
   const GearSelection({super.key});
@@ -87,137 +88,135 @@ class _GearSelectionState extends State<GearSelection> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Select gear used'),
-        foregroundColor: Colors.white,
-        backgroundColor: Colors.blueAccent,
-      ),
-      body: _isLoading
-          ? const CircularProgressIndicator()
-          : Padding(
-              padding: const EdgeInsets.all(16.0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  RichText(
-                    text: TextSpan(
-                      style: TextStyle(color: Colors.black, fontSize: 18),
-                      children: [
-                        TextSpan(text: 'For ${indexedActivity.name}\n'),
-                        TextSpan(
-                          text:
-                              '(Items are preselected for convenience, deselect if not used)',
-                          style: TextStyle(
-                            fontSize: 14,
-                            fontStyle: FontStyle.italic,
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  Expanded(
-                    // Loop thru all activity's containers
-                    child: ListView.builder(
-                      padding: const EdgeInsets.all(2),
-                      itemCount: containerList!.length,
-                      itemBuilder: (context, index) {
-                        final Gear aContainer = containerList[index];
-                        final List<Gear> containerGearList =
-                            containerIdToGearsMap.containsKey(aContainer.id)
-                            ? containerIdToGearsMap[aContainer.id]!.toList()
-                            : [];
-
-                        return Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            RichText(
-                              text: TextSpan(
-                                style: TextStyle(
-                                  color: Colors.black,
-                                  fontSize: 16,
-                                ),
-                                children: [
-                                  TextSpan(text: '${aContainer.name}\n'),
-                                ],
-                              ),
-                            ),
-
-                            // List all the geat in the container
-                            GearSelector(
-                              physics: NeverScrollableScrollPhysics(),
-                              shrinkWrap: true,
-                              gearList: containerGearList,
-                              preSelectedIds:
-                                  activityIdToSelectedGearIdsMap[indexedActivity
-                                      .id],
-                            ),
-                          ],
-                        );
-                      },
-                    ),
-                  ),
-
-                  const SizedBox(height: 16),
-
-                  // Next button
-                  if (!_isLastActivity)
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.pushNamed(
-                            context,
-                            '/set_usage',
-                            arguments: {
-                              'index': index + 1,
-                              'activityContainerMap': activityToContainersMap,
-                              'selection': activityIdToSelectedGearIdsMap,
-                            },
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: Size(
-                            double.infinity,
-                            48,
-                          ), // Full-width button
-                          foregroundColor: Colors.white,
-                          backgroundColor: true ? Colors.blue : Colors.grey,
-                        ),
-                        child: const Text('Next'),
-                      ),
-                    )
-                  else
-                    Align(
-                      alignment: Alignment.centerRight,
-                      child: ElevatedButton(
-                        onPressed: () {
-                          Navigator.pushNamedAndRemoveUntil(
-                            context,
-                            '/complete',
-                            arguments: {
-                              'selection': activityIdToSelectedGearIdsMap,
-                            },
-                            (route) => false,
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          minimumSize: Size(
-                            double.infinity,
-                            48,
-                          ), // Full-width button
-                          foregroundColor: Colors.white,
-                          backgroundColor: true ? Colors.blue : Colors.grey,
-                        ),
-                        child: const Text('Done'),
-                      ),
-                    ),
-                ],
-              ),
+    return VraScaffold(
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          RichText(
+            text: TextSpan(
+              style: TextStyle(color: Colors.black, fontSize: 18),
+              children: [
+                TextSpan(text: 'For ${indexedActivity.name}\n'),
+                TextSpan(
+                  text:
+                      '(Items are preselected for convenience, deselect if not used)',
+                  style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
+                ),
+              ],
             ),
+          ),
+
+          const SizedBox(height: 16),
+
+          Expanded(
+            // Loop thru all activity's containers
+            child: ListView.builder(
+              padding: const EdgeInsets.all(2),
+              itemCount: containerList!.length,
+              itemBuilder: (context, index) {
+                final Gear aContainer = containerList[index];
+                final List<Gear> containerGearList =
+                    containerIdToGearsMap.containsKey(aContainer.id)
+                    ? containerIdToGearsMap[aContainer.id]!.toList()
+                    : [];
+
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    RichText(
+                      text: TextSpan(
+                        style: TextStyle(color: Colors.black, fontSize: 16),
+                        children: [TextSpan(text: '${aContainer.name}\n')],
+                      ),
+                    ),
+
+                    // List all the geat in the container
+                    GearSelector(
+                      physics: NeverScrollableScrollPhysics(),
+                      shrinkWrap: true,
+                      gearList: containerGearList,
+                      preSelectedIds:
+                          activityIdToSelectedGearIdsMap[indexedActivity.id],
+                    ),
+                  ],
+                );
+              },
+            ),
+          ),
+
+          const SizedBox(height: 16),
+
+          // Next button
+          // if (!_isLastActivity)
+          //   Align(
+          //     alignment: Alignment.centerRight,
+          //     child: ElevatedButton(
+          //       onPressed: () {
+          //         Navigator.pushNamed(
+          //           context,
+          //           '/set_usage',
+          //           arguments: {
+          //             'index': index + 1,
+          //             'activityContainerMap': activityToContainersMap,
+          //             'selection': activityIdToSelectedGearIdsMap,
+          //           },
+          //         );
+          //       },
+          //       style: ElevatedButton.styleFrom(
+          //         minimumSize: Size(double.infinity, 48), // Full-width button
+          //         foregroundColor: Colors.white,
+          //         backgroundColor: true ? Colors.blue : Colors.grey,
+          //       ),
+          //       child: const Text('Next'),
+          //     ),
+          //   )
+          // else
+          //   Align(
+          //     alignment: Alignment.centerRight,
+          //     child: ElevatedButton(
+          //       onPressed: () {
+          //         Navigator.pushNamedAndRemoveUntil(
+          //           context,
+          //           '/complete',
+          //           arguments: {'selection': activityIdToSelectedGearIdsMap},
+          //           (route) => false,
+          //         );
+          //       },
+          //       style: ElevatedButton.styleFrom(
+          //         minimumSize: Size(double.infinity, 48), // Full-width button
+          //         foregroundColor: Colors.white,
+          //         backgroundColor: true ? Colors.blue : Colors.grey,
+          //       ),
+          //       child: const Text('Done'),
+          //     ),
+          //   ),
+        ],
+      ),
+      onBackPressed: () {
+        Navigator.pop(context);
+      },
+      isBackReady: true,
+      onNextPressed: () {
+        if (!_isLastActivity) {
+          Navigator.pushNamed(
+            context,
+            '/set_usage',
+            arguments: {
+              'index': index + 1,
+              'activityContainerMap': activityToContainersMap,
+              'selection': activityIdToSelectedGearIdsMap,
+            },
+          );
+        } else {
+          Navigator.pushNamedAndRemoveUntil(
+            context,
+            '/complete',
+            arguments: {'selection': activityIdToSelectedGearIdsMap},
+            (route) => false,
+          );
+        }
+      },
+      isNextReady: true,
     );
   }
 
