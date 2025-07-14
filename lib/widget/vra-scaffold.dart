@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:vra_asset_track/common/connectivity_service.dart';
 
 class VraScaffold extends StatelessWidget {
   final Widget body;
@@ -46,6 +47,28 @@ class VraScaffold extends StatelessWidget {
       ),
       body: Column(
         children: [
+          // Offline mode indicator
+          FutureBuilder<bool>(
+            future: ConnectivityService().isOnline(),
+            builder: (context, snapshot) {
+              final isOnline = snapshot.data ?? false;
+              return isOnline
+                  ? const SizedBox.shrink()
+                  : Container(
+                      width: double.infinity, // Takes full width of parent
+                      color: Colors.red, // Red background
+                      child: Text(
+                        'Offline Mode',
+                        style: const TextStyle(
+                          color: Colors.white, // White text for contrast
+                          fontSize: 14,
+                        ),
+                        textAlign: TextAlign.center,
+                      ),
+                    );
+            },
+          ),
+
           Expanded(
             child: Padding(padding: const EdgeInsets.all(16.0), child: body),
           ),

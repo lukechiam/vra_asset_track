@@ -1,12 +1,16 @@
+import 'package:connectivity_plus/connectivity_plus.dart';
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vra_asset_track/activity_picker.dart';
 import 'package:vra_asset_track/common/activity.dart';
+import 'package:vra_asset_track/common/connectivity_service.dart';
 import 'package:vra_asset_track/done.dart';
 import 'package:vra_asset_track/gear_group_picker.dart';
 import 'package:vra_asset_track/gear_picker.dart';
+import 'package:vra_asset_track/no_local_data.dart';
 import 'package:vra_asset_track/repository/activity.dart';
 import 'package:vra_asset_track/repository/gear.dart';
+import 'package:vra_asset_track/widget/vra-scaffold.dart';
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -72,6 +76,14 @@ class _HomeScreenState extends State<HomeScreen> {
 
   @override
   Widget build(BuildContext context) {
-    return ActivitySelection(ActivityRepository());
+    return FutureBuilder<bool>(
+      future: ConnectivityService().isOnline(),
+      builder: (context, snapshot) {
+        final isOnline = snapshot.data ?? false;
+        return isOnline
+            ? ActivitySelection(ActivityRepository())
+            : VraScaffold(body: SizedBox(child: NoLocalData()));
+      },
+    );
   }
 }
