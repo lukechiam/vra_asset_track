@@ -4,14 +4,14 @@ import 'package:vra_asset_track/common/activity.dart';
 class ActivityDropdown extends StatefulWidget {
   final String label;
   final String hint;
-  final List<Activity> avavilableActivity;
+  final List<Activity> activities;
   final ValueChanged<Activity?>? onChanged;
 
   const ActivityDropdown({
     super.key,
     required this.label,
     required this.hint,
-    required this.avavilableActivity,
+    required this.activities,
     this.onChanged,
   });
 
@@ -36,7 +36,7 @@ class _ActivityDropdownState extends State<ActivityDropdown> {
             value: selectedActivity,
             hint: Text(widget.hint),
             isExpanded: true,
-            items: widget.avavilableActivity.map((item) {
+            items: widget.activities.map((item) {
               return DropdownMenuItem<Activity>(
                 value: item,
                 child: Text(item.name),

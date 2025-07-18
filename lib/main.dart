@@ -1,15 +1,55 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vra_asset_track/activity_picker.dart';
-import 'package:vra_asset_track/common/activity.dart';
-import 'package:vra_asset_track/common/connectivity_service.dart';
+import 'package:vra_asset_track/common/extra_data.dart';
 import 'package:vra_asset_track/done.dart';
 import 'package:vra_asset_track/gear_group_picker.dart';
 import 'package:vra_asset_track/gear_picker.dart';
-import 'package:vra_asset_track/no_local_data.dart';
-import 'package:vra_asset_track/repository/activity.dart';
 import 'package:vra_asset_track/repository/gear.dart';
-import 'package:vra_asset_track/widget/vra-scaffold.dart';
+
+// Define a const AppBar to prevent rebuilds
+final myAppBar = AppBar(
+  actions: [IconButton(icon: Icon(Icons.settings), onPressed: () {})],
+  backgroundColor: Color(0xFF006838),
+  elevation: 8,
+  flexibleSpace: Container(
+    decoration: BoxDecoration(
+      image: DecorationImage(
+        image: AssetImage('assets/banner.png'),
+        fit: BoxFit.fitHeight,
+        alignment: Alignment.centerRight,
+      ),
+    ),
+  ),
+);
+
+// Router configuration with ShellRoute
+final GoRouter _router = GoRouter(
+  initialLocation: '/activity',
+  routes: [
+    ShellRoute(
+      builder: (context, state, child) => MainScaffold(child: child),
+      routes: [
+        GoRoute(
+          path: '/activity',
+          builder: (context, state) => ActivitySelection(),
+        ),
+        GoRoute(
+          path: '/container',
+          builder: (context, state) =>
+              GearGroupSelection(GearRepository(), state.extra as PageRecord?),
+        ),
+        GoRoute(
+          path: '/gear',
+          builder: (context, state) =>
+              GearSelection(state.extra as PageRecord?),
+        ),
+        GoRoute(path: '/complete', builder: (context, state) => DonePage()),
+      ],
+    ),
+  ],
+);
 
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
@@ -28,61 +68,64 @@ void main() async {
     storageOptions: const StorageClientOptions(retryAttempts: 10),
   );
 
-  runApp(const SimpleFlutterApp());
+  runApp(const MyApp());
 }
 
-class SimpleFlutterApp extends StatelessWidget {
-  const SimpleFlutterApp({super.key});
+class MyApp extends StatelessWidget {
+  const MyApp({super.key});
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'Simple Flutter App',
-      theme: ThemeData(primarySwatch: Colors.blue),
-      home: const HomeScreen(),
-      routes: {
-        '/gear_select': (context) => GearGroupSelection(GearRepository()),
-        '/set_usage': (context) => const GearSelection(),
-        '/complete': (context) => const DonePage(),
-      },
+    return MaterialApp.router(
+      routerConfig: _router,
+      theme: ThemeData(
+        colorScheme: ColorScheme.fromSeed(seedColor: Colors.blue),
+        useMaterial3: true,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.blue,
+          foregroundColor: Colors.white,
+        ),
+      ),
     );
   }
 }
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class MainScaffold extends StatefulWidget {
+  final Widget child;
+
+  const MainScaffold({super.key, required this.child});
 
   @override
-  _HomeScreenState createState() => _HomeScreenState();
+  State<MainScaffold> createState() => _MainScaffoldState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  final supabase = Supabase.instance.client;
-
-  List<Activity> activityTasks = [];
-  Activity? selectedActivity;
-  List<int>? selectedTaskIds;
-
-  final List<DropdownMenuEntry<String>> entries = [
-    const DropdownMenuEntry(value: 'Operation', label: 'Operation'),
-    const DropdownMenuEntry(value: 'Training', label: 'Training'),
-  ];
-
-  @override
-  void initState() {
-    super.initState();
-  }
+class _MainScaffoldState extends State<MainScaffold> {
+  // int _currentIndex s= 0;
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder<bool>(
-      future: ConnectivityService().isOnline(),
-      builder: (context, snapshot) {
-        final isOnline = snapshot.data ?? false;
-        return isOnline
-            ? ActivitySelection(ActivityRepository())
-            : VraScaffold(body: SizedBox(child: NoLocalData()));
-      },
+    // Map routes to indices
+    // final String currentPath = GoRouterState.of(context).matchedLocation;
+    // _currentIndex = switch (currentPath) {
+    //   '/activity' => 0,
+    //   '/container' => 1,
+    //   '/gear' => 2,
+    //   '/complete' => 3,
+    //   _ => 0,
+    // };
+
+    return Scaffold(
+      appBar: myAppBar, // Reuse const AppBar
+      body: Column(
+        children: [
+          Expanded(
+            child: Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: widget.child,
+            ),
+          ),
+        ],
+      ), // Display the current route's page
     );
   }
 }

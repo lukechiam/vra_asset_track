@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vra_asset_track/common/gear.dart';
 
@@ -20,7 +22,16 @@ class GearRepository {
       final response = await client
           .from('gear')
           .select()
-          .eq('parent_id', parentId);
+          .eq('parent_id', parentId)
+          .timeout(
+            Duration(seconds: 5),
+            onTimeout: () {
+              throw TimeoutException(
+                'API request for data timed out after 5 seconds',
+              );
+            },
+          );
+      ;
       return response.map((e) => Gear.fromData(e)).toList();
     } catch (error) {
       throw Exception('Error fetching gear: $error');
@@ -42,18 +53,6 @@ class GearRepository {
 
   // Map<int, List<int>>
   Future<bool> saveGearUsage(Map<int, List<int>> activityIdToGearIdsMap) async {
-    // final List<Map<String, dynamic>>? dataToSave = activityIdToGearIdsMap
-    //     .entries
-    //     .map(
-    //       (entry) => entry.value
-    //           .map(
-    //             (gearId) =>
-    //                 {'activity_id': entry.key, 'gear_id': gearId, 'user_id': 0}
-    //                     as Map<String, dynamic>,
-    //           )
-    //           .first,
-    //     )
-    //     .toList();
     final List<Map<String, dynamic>>? dataToSave = activityIdToGearIdsMap
         .entries
         .expand(

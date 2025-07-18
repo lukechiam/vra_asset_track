@@ -1,3 +1,5 @@
+import 'dart:async';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:vra_asset_track/common/activity.dart';
 
@@ -20,11 +22,18 @@ class ActivityRepository {
       final response = await client
           .from('activity')
           .select()
-          .eq('parent_id', parentId);
+          .eq('parent_id', parentId)
+          .timeout(
+            Duration(seconds: 5),
+            onTimeout: () {
+              throw TimeoutException(
+                'API request for data timed out after 5 seconds',
+              );
+            },
+          );
       return response.map((e) => Activity.fromData(e)).toList();
     } catch (error) {
-      return [];
-      // throw Exception('Error fetching activities: $error');
+      throw Exception('Error fetching activities: $error');
     }
   }
 }

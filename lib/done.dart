@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 import 'package:vra_asset_track/main.dart';
 import 'package:vra_asset_track/repository/gear.dart';
 
@@ -19,41 +20,27 @@ class _DonePageState extends State<DonePage> {
         ModalRoute.of(context)!.settings.arguments as Map<String, dynamic>;
     activityIdToSelectedGearIdsMap = arguments['selection'] ?? {};
 
-    return Scaffold(
-      appBar: AppBar(
-        title: Text('Recording...'),
-        foregroundColor: const Color.fromARGB(255, 78, 65, 65),
-        backgroundColor: Colors.blueAccent,
-      ),
-      body: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('Gear usage ready to be saved'),
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text('Gear usage ready to be saved'),
 
-            Align(
-              alignment: Alignment.centerRight,
-              child: ElevatedButton(
-                onPressed: () {
-                  _saveDataToApi(context);
-                  Navigator.pushAndRemoveUntil(
-                    context,
-                    MaterialPageRoute(builder: (context) => HomeScreen()),
-                    (Route<dynamic> route) => false,
-                  );
-                },
-                style: ElevatedButton.styleFrom(
-                  minimumSize: Size(double.infinity, 48), // Full-width button
-                  foregroundColor: Colors.white,
-                  backgroundColor: true ? Colors.blue : Colors.grey,
-                ),
-                child: const Text('Save now & go home'),
-              ),
+        Align(
+          alignment: Alignment.centerRight,
+          child: ElevatedButton(
+            onPressed: () {
+              _saveDataToApi(context);
+              context.pushReplacement('/activity');
+            },
+            style: ElevatedButton.styleFrom(
+              minimumSize: Size(double.infinity, 48), // Full-width button
+              foregroundColor: Colors.white,
+              backgroundColor: true ? Colors.blue : Colors.grey,
             ),
-          ],
+            child: const Text('Save now & go home'),
+          ),
         ),
-      ),
+      ],
     );
   }
 
