@@ -135,9 +135,9 @@ class _ActivitySelectionState extends State<ActivitySelection> {
 
               VraNav(
                 isNextReady: selectedActivityTasks.isNotEmpty,
-                isBackReady: context.canPop(),
+                isBackReady: false,
                 onNextPressed: _onButtonPressed,
-                onBackPressed: () => context.pop(),
+                onBackPressed: null,
               ),
             ],
           );
